@@ -2,6 +2,7 @@
 
 .styling {
     border: lightcoral;
+    background-color: rgba(182, 192, 42, 0.322);
 }
 
 html, body {
@@ -64,4 +65,9 @@ html, body {
 
 .modal p {
     margin-bottom: 0;
+}
+
+* {
+    font-family: 'Playfair Display', serif;
+    font-size: 23px;
 }
