@@ -1,6 +1,6 @@
 var pokemonRepository = (function () {
   var pokemonList = [];
-  var apiURL = "https://pokeapi.co/api/v2/pokemon/?limit=900";
+  var apiURL = "https://pokeapi.co/api/v2/pokemon/?limit=20";
 
   function getAll() {
     return pokemonList;
@@ -32,22 +32,32 @@ var pokemonRepository = (function () {
   }
 
   function addListItem(pokemon) {
-    // var ul = document.createElement("ul");
-    // ul.classList.add("pokemon-list");
-    var pokemonList = $(".pokemon-list"); // take out . for new function
-    var listItem = $("<li></li>");
-    var button = $("<button></button>");
-    var pokeNames = pokemon.name;
-    button.append(pokeNames);
-    button.addClass("styling");
-    // document.body.appendChild(ul);
-    // ul.appendChild(listItem);
-    pokemonList.append(listItem);
-    listItem.append(button);
-    button.on("click", function (event) {
-      showDetails(pokemon);
+    pokemonRepository.loadDetails(pokemon).then(function () {
+      var $row = $(".row"); //creates a row for list to show on
+      var $pokeCard = $('<div class = "pokeCard" style="width:200px"></div>'); //Sets all items in row to 200px size
+      $pokeImage = $(
+        '<img class= "card-img-top" alt= "Image of Card" style="width:50" />'
+      ); //set image class and size
+      $pokeImage.attr("src", pokemon.imageUrlFront); //link to loadDetails
+      var $pokeBody = $('<div class= "card-body"></div>'); //bootstrap class for cards
+      var $pokeTitle = $("<h5 class= 'card-title' >" + pokemon.name + "</h5>"); //adds name to title
+      var $openProfile = $(
+        '<button type= "button" class= "btn btn-info" data-toggle= "modal" data-target="#exampleModal">Open Profile</button>'
+      );
+
+      $row.append($pokeCard);
+      //append each image to each card
+      $pokeCard.append($pokeImage);
+      $pokeCard.append($pokeBody);
+      $pokeBody.append($pokeTitle);
+      $pokeBody.append($openProfile);
+
+      $openProfile.on("click", function (event) {
+        showDetails(pokemon);
+      });
     });
   }
+
   function showDetails(pokemon) {
     pokemonRepository.loadDetails(pokemon).then(function () {
       console.log(pokemon);
@@ -60,7 +70,8 @@ var pokemonRepository = (function () {
     return $.ajax(url)
       .then(function (details) {
         //details on item
-        item.imageUrl = details.sprites.front_default;
+        item.imageUrlFront = details.sprites.front_default;
+        item.imageUrlBack = details.sprites.back_default;
         item.height = details.height;
         //loop through each of the pokemon types
         //and changing background color if includes is true for that statement
@@ -110,26 +121,24 @@ var pokemonRepository = (function () {
   }
 
   function showModal(pokemon) {
-    var modalContainer = $("#modal-container");
-    // Clears existing modal content
-    modalContainer.empty();
-    // Creates Div in DOM
-    var modal = $("<div></div>");
-    //Adds class to div element
-    modal.addClass("modal");
-    //Create closing button in modal
-    var closeButton = $('<button class = "modal-close">Close</button>');
-    // closeButton.addClass("modal-close");
-    // closeButton.innerText = "Close";
-    //Event listener to listen for click
-    closeButton.on("click", hideModal);
-    // Element for name
+    var modalBody = $(".modal-body");
+    var modalTitle = $(".modal-title");
+    var modalHeader = $(".modal-header");
+    modalTitle.empty();
+    modalBody.empty();
+
+    var imageFront = $('<img class="modal-img" style="width: 50%"> ');
+    imageFront.attr("src", pokemon.imageUrlFront);
+
+    var imageBack = $('<img class ="modal-img" style="width: 50%"> ');
+    imageBack.attr("src", pokemon.imageUrlBack);
+
     var pokeName = $("<h1>" + "Pokemon Name: " + pokemon.name + "</h1>");
     // pokeName.innerText = "Pokemon Name: " + pokemon.name;
     // Element for IMG
-    var pokeImg = $('<img class = "modal-img"></img>');
-    // pokeImg.addClass("modal-img");
-    pokeImg.attr("src", pokemon.imageUrl);
+    // var pokeImg = $('<img class = "modal-img"></img>');
+    // // pokeImg.addClass("modal-img");
+    // pokeImg.attr("src", pokemon.imageUrl);
     //Element for height
     var pokeHeight = $("<p>" + "Height: " + pokemon.height + "</p>");
     // pokeHeight.innerText = "Height: " + pokemon.height;
@@ -143,46 +152,43 @@ var pokemonRepository = (function () {
     var pokeAbili = $("<p>" + "Abilities : " + pokemon.abilities + "</p>");
     // pokeAbili.innerText = "Abilities: " + pokemon.abilities;
     //Append all to modal then to modal container and adding 'is-visible;
-    modal.append(closeButton);
-    modal.append(pokeName);
-    modal.append(pokeHeight);
-    modal.append(pokeImg);
-    modal.append(pokeWeight);
-    modal.append(pokeType);
-    modal.append(pokeAbili);
-    modalContainer.append(modal);
-    //adds class to show modal
-    modalContainer.addClass("is-visible");
+    modalTitle.append(pokeName);
+    modalBody.append(imageBack);
+    modalBody.append(imageFront);
+    modalBody.append(pokeHeight);
+    modalBody.append(pokeWeight);
+    modalBody.append(pokeType);
+    modalBody.append(pokeAbili);
   }
-  //Hides when clicked on close button
-  function hideModal() {
-    var modalContainer = $("#modal-container");
-    modalContainer.removeClass("is-visible");
-  }
+  // //Hides when clicked on close button
+  // function hideModal() {
+  //   var modalContainer = $("#modal-container");
+  //   modalContainer.removeClass("is-visible");
+  // }
 
-  //Hides when clicked ESC
-  jQuery(window).on("keydown", (e) => {
-    // var modalContainer = document.querySelector("#modal-container");
-    var modalContainer = $("#modal-container");
-    if (e.key === "Escape" && modalContainer.hasClass("is-visible")) {
-      hideModal();
-    }
-  });
-
-  //Hides when clicked outside the Modal
-  // var modalContainer = document.querySelector("#modal-container");
-  // var modalContainer = $("#modal-container");
-  // modalContainer.on("click", (e) => {
-  //   var target = e.target;
-  //   if (target === modalContainer) {
+  // //Hides when clicked ESC
+  // jQuery(window).on("keydown", (e) => {
+  //   // var modalContainer = document.querySelector("#modal-container");
+  //   var modalContainer = $("#modal-container");
+  //   if (e.key === "Escape" && modalContainer.hasClass("is-visible")) {
   //     hideModal();
   //   }
   // });
-  $("body").click(function () {
-    if ($("#modal-container").is(":visible")) {
-      hideModal();
-    }
-  });
+
+  // //Hides when clicked outside the Modal
+  // // var modalContainer = document.querySelector("#modal-container");
+  // // var modalContainer = $("#modal-container");
+  // // modalContainer.on("click", (e) => {
+  // //   var target = e.target;
+  // //   if (target === modalContainer) {
+  // //     hideModal();
+  // //   }
+  // // });
+  // $("body").click(function () {
+  //   if ($("#modal-container").is(":visible")) {
+  //     hideModal();
+  //   }
+  // });
 
   return {
     add: add,
@@ -191,7 +197,7 @@ var pokemonRepository = (function () {
     loadList: loadList,
     loadDetails: loadDetails,
     showModal: showModal,
-    showDetails: showDetails,
+    // showDetails: showDetails,
   };
 })();
 
