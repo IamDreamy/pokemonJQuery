@@ -33,7 +33,6 @@ html, body {
 
 .modal {
     margin: auto;
-    display: inline-block;
     box-sizing: border-box;
     background: #fff;
     padding: 15px;

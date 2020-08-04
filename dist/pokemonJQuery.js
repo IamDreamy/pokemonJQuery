@@ -1,6 +1,6 @@
 var pokemonRepository = (function () {
   var o = [],
-    e = "https://pokeapi.co/api/v2/pokemon/?limit=20";
+    e = "https://pokeapi.co/api/v2/pokemon/?limit=15";
   function t(e) {
     "object" == typeof e && "name" in e && "detailsUrl" in e
       ? o.push(e)
